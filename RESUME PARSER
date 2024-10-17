@@ -1,0 +1,63 @@
+import os
+import re
+import pandas as pd
+from PyPDF2 import PdfReader
+from docx import Document
+
+def extract_text_from_pdf(file_path):
+    text = ""
+    with open(file_path, 'rb') as file:
+        reader = PdfReader(file)
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+    return text
+
+def extract_text_from_word(file_path):
+    text = ""
+    doc = Document(file_path)
+    for para in doc.paragraphs:
+        text += para.text + "\n"
+    return text
+
+def parse_resume(text):
+    name_pattern = r'SHAIK\s+Mohammed\s+Yasir\s+Abrar'
+    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b'
+    phone_pattern = r'\+91\s*\d{10}'
+    education_pattern = r'(?<=ACADEMIC QUALIFICATION)(.*?)(?=TECHNICAL SKILLS)'
+    skills_pattern = r'(?<=TECHNICAL SKILLS)(.*?)(?=CERTIFICATIONS)'
+    certifications_pattern = r'(?<=CERTIFICATIONS)(.*?)(?=EXTRA CURRICULAR ACTIVITIES|$)'
+
+    name = re.search(name_pattern, text)
+    email = re.search(email_pattern, text)
+    phone = re.search(phone_pattern, text)
+    education = re.search(education_pattern, text, re.DOTALL)
+    skills = re.search(skills_pattern, text, re.DOTALL)
+    certifications = re.search(certifications_pattern, text, re.DOTALL)
+
+    return {
+        'Name': name.group(0) if name else None,
+        'Email': email.group(0) if email else None,
+        'Phone': phone.group(0) if phone else None,
+        'Skills': skills.group(0).strip() if skills else None,
+        'Certifications': certifications.group(0).strip() if certifications else None
+    }
+
+def process_resume(resume_file):
+    if resume_file.endswith('.pdf'):
+        text = extract_text_from_pdf(resume_file)
+    elif resume_file.endswith('.docx'):
+        text = extract_text_from_word(resume_file)
+    else:
+        raise ValueError("Unsupported file format")
+    
+    resume_info = parse_resume(text)
+    return pd.DataFrame([resume_info])
+
+resume_file = r'C:\Users\Lenovo\OneDrive\Documents\Yasir Abrar Resume.docx'  
+resumes_df = process_resume(resume_file)  
+
+for index, row in resumes_df.iterrows():
+    print(f"Resume {index + 1}:")
+    for key, value in row.items():
+        print(f"{key}: {value}")
+    print("\n" + "-" * 20 + "\n")  
