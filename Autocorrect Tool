@@ -1,0 +1,34 @@
+from spellchecker import SpellChecker
+import string
+
+def autocorrect_text(input_text):
+    spell = SpellChecker()
+    words = input_text.split()
+    corrected_words = []
+
+    for word in words:
+        word_clean = word.strip(string.punctuation)
+        corrected_word = spell.correction(word_clean) if spell.correction(word_clean) else word_clean
+        if word_clean.istitle():
+            corrected_word = corrected_word.capitalize()
+        elif word_clean.isupper():
+            corrected_word = corrected_word.upper()
+        corrected_word_with_punc = word.replace(word_clean, corrected_word)
+        corrected_words.append(corrected_word_with_punc)
+    corrected_text = ' '.join(corrected_words)
+    return corrected_text
+
+def main():
+    print("Welcome to the AI-driven Autocorrect Tool!")
+    print("Type your text below and press Enter to autocorrect it.")
+    
+    while True:
+        user_input = input("\nEnter text (or 'exit' to quit): ")
+        if user_input.lower() == 'exit':
+            print("Exiting the tool. Goodbye!")
+            break
+        corrected = autocorrect_text(user_input)
+        print(f"Autocorrected text: {corrected}")
+        
+if __name__ == "__main__":
+    main()
