@@ -1,0 +1,43 @@
+from deep_translator import GoogleTranslator
+
+def translate_text(text, target_language):
+    try:
+        translator = GoogleTranslator(source='auto', target=target_language)
+        translated = translator.translate(text)
+        return translated
+    except Exception as e:
+        return str(e)
+
+def main():
+    print("Welcome to the Real-Time Translation App!")
+    print("Available languages:")
+    
+    # List available languages
+    languages = {
+        'en': 'English',
+        'es': 'Spanish',
+        'fr': 'French',
+        'de': 'German',
+        'zh': 'Chinese',
+        # Add more languages as needed
+    }
+    for code, lang in languages.items():
+        print(f"{code}: {lang.capitalize()}")
+
+    while True:
+        text = input("\nEnter the text you want to translate (or 'exit' to quit): ")
+        if text.lower() == 'exit':
+            print("Exiting the app. Goodbye!")
+            break
+        
+        target_language = input("Enter the target language code (e.g., 'en' for English, 'es' for Spanish): ")
+        
+        if target_language not in languages:
+            print("Invalid language code. Please try again.")
+            continue
+        
+        translated_text = translate_text(text, target_language)
+        print(f"Translated text ({languages[target_language].capitalize()}): {translated_text}")
+
+if __name__ == "__main__":
+    main()
